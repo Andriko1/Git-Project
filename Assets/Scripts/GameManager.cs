@@ -72,10 +72,10 @@ public class GameManager : MonoBehaviour
         //currentStage = CurrentStage.Paused;   Not needed at this stage, implement later
         
 
-        SpawnEnemy(EnemyType.Melee, new Vector2(5, -3));
-        SpawnEnemy(EnemyType.Exploder, new Vector2(5, 3));
-        SpawnEnemy(EnemyType.Shooter, new Vector2(-5, 3));
-        SpawnEnemy(EnemyType.MachineGun, new Vector2(-5, -3));
+        SpawnEnemy(EnemyType.Melee, new Vector2(8.5f, -5.5f));
+        SpawnEnemy(EnemyType.Exploder, new Vector2(8.5f, 5.5f));
+        SpawnEnemy(EnemyType.Shooter, new Vector2(-8.5f, 5.5f));
+        SpawnEnemy(EnemyType.MachineGun, new Vector2(-8.5f, -5.5f));
         _timer = 0.0f;
         LoadScore();
     }
@@ -87,10 +87,10 @@ public class GameManager : MonoBehaviour
 
         if (_timer > _spawnTime)
         {
-            SpawnEnemy(EnemyType.Melee, new Vector2(5, -3));
-            SpawnEnemy(EnemyType.Exploder, new Vector2(5, 3));
-            SpawnEnemy(EnemyType.Shooter, new Vector2(-5, 3));
-            SpawnEnemy(EnemyType.MachineGun, new Vector2(-5, -3));
+            SpawnEnemy(EnemyType.Melee, new Vector2(8.5f, -5.5f));
+            SpawnEnemy(EnemyType.Exploder, new Vector2(8.5f, 5.5f));
+            SpawnEnemy(EnemyType.Shooter, new Vector2(-8.5f, 5.5f));
+            SpawnEnemy(EnemyType.MachineGun, new Vector2(-8.5f, -5.5f));
             _timer = 0.0f;
         }
     }
