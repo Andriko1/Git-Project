@@ -1,3 +1,0 @@
-This is the first file
-HELLO WORLD!
-Adding a new line!
