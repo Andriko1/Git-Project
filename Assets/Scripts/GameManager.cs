@@ -16,7 +16,7 @@ public class GameManager : MonoBehaviour
     private float _fadeDuration = 3.0f;
     private bool _wasStageClear = true;
     private bool _stageClearedBeforeTimer = false;
-
+    private int _stageCounter = 0;
     private int _enemiesToSpawn = 4;
 
     private Color _ogC;
@@ -80,6 +80,7 @@ public class GameManager : MonoBehaviour
         SpawnEnemy(EnemyType.Shooter, new Vector2(-8.5f, 5.5f));
         SpawnEnemy(EnemyType.MachineGun, new Vector2(-8.5f, -5.5f));
         _timer = 0.0f;
+        _stageCounter++;
         LoadScore();
     }
 
@@ -90,6 +91,7 @@ public class GameManager : MonoBehaviour
 
         if (_timer > _spawnTime)
         {
+            _stageCounter++;
             if (_enemies.Count > 0) 
             {
                 _wasStageClear = false;
@@ -99,7 +101,7 @@ public class GameManager : MonoBehaviour
                 _wasStageClear = true;
             }
             SpawnEnemies(_enemiesToSpawn);
-            if (_stageClearedBeforeTimer)   //This bool is true when the enemies were cleared 0.5s before the timer
+            if (_stageClearedBeforeTimer || _stageCounter % 3 == 0)   //Increase difficulty when the enemies were cleared 0.5s before the timer or when 3 stages have passed
             {
                 int r = UnityEngine.Random.Range(0, 5);
                 if (r == 4)
