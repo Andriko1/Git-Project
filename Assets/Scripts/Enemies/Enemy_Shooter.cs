@@ -1,14 +1,43 @@
+using UnityEditor;
+using UnityEditor.Animations;
 using UnityEngine;
 
 public class Enemy_Shooter : Enemy
 {
     #region Fields
+    PolygonCollider2D _pCollider;
+    Rigidbody2D _rb;
     #endregion
 
     #region Properties
     #endregion
 
     #region Unity Methods
+    public override void Awake()
+    {
+        base.Awake();
+        
+        _pCollider = gameObject.AddComponent<PolygonCollider2D>();
+        _rb = gameObject.AddComponent<Rigidbody2D>();
+
+        _pCollider.pathCount = 1;
+        _pCollider.points = new Vector2[]
+        {
+            new Vector2(0f, 0.1875f), new Vector2(-0.625f, 0f), new Vector2(0f, -0.1875f), new Vector2(0.625f, 0f)
+        };
+
+        _rb.isKinematic = true;
+        _rb.useFullKinematicContacts = true;
+        
+        GameObject enemyShooterChild = new GameObject("Child", typeof(Animator), typeof(SpriteRenderer));
+        enemyShooterChild.GetComponent<SpriteRenderer>().sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Packages/com.unity.2d.sprite/Editor/ObjectMenuCreation/DefaultAssets/Textures/v2/IsometricDiamond.png");
+        enemyShooterChild.GetComponent<Animator>().runtimeAnimatorController = AssetDatabase.LoadAssetAtPath<AnimatorController>("Assets/Animations/Enemy_Shooter.controller");
+        enemyShooterChild.transform.localScale = new Vector3(1.25f, 0.75f);
+        enemyShooterChild.transform.SetParent(transform, false);
+
+        SetEnemyType(EnemyType.Shooter);
+    }
+
     public override void Start()
     {
         base.Start();
@@ -16,7 +45,6 @@ public class Enemy_Shooter : Enemy
         AttackTime = 1.5f;
         timer = AttackTime;
         _speed = 2f;
-        SetEnemyType(EnemyType.Shooter);
         Health = new Health(1, 1, 0);
     }
 

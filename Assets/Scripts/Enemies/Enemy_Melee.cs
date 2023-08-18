@@ -1,14 +1,36 @@
+using UnityEditor;
+using UnityEditor.Animations;
 using UnityEngine;
 
 public class Enemy_Melee : Enemy
 {
     #region Fields
+    private BoxCollider2D _bCollider;
+    private Rigidbody2D _rb;
     #endregion
 
     #region Properties
     #endregion
 
     #region Unity Methods
+    public override void Awake()
+    {
+        base.Awake();
+        _bCollider = gameObject.AddComponent<BoxCollider2D>();
+        _rb = gameObject.AddComponent<Rigidbody2D>();
+        
+        _rb.isKinematic = true;
+        _rb.useFullKinematicContacts = true;
+
+        GameObject enemyMeleeChild = new GameObject("Child", typeof(Animator), typeof(SpriteRenderer));
+        enemyMeleeChild.GetComponent<SpriteRenderer>().sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Packages/com.unity.2d.sprite/Editor/ObjectMenuCreation/DefaultAssets/Textures/v2/Square.png");
+        enemyMeleeChild.GetComponent<Animator>().runtimeAnimatorController = AssetDatabase.LoadAssetAtPath<AnimatorController>("Assets/Animations/Enemy_Melee.controller");
+        enemyMeleeChild.transform.localScale = new Vector3(0.75f, 0.75f);
+        enemyMeleeChild.transform.SetParent(transform, false);
+
+        SetEnemyType(EnemyType.Melee);
+    }
+
     public override void Start()
     {
         base.Start();
@@ -16,7 +38,6 @@ public class Enemy_Melee : Enemy
         AttackTime = 1.0f;
         timer = AttackTime;
         _speed = 3.5f;
-        SetEnemyType(EnemyType.Melee);
         Health = new Health(1, 1, 0);
     }
 

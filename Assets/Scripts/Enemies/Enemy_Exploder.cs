@@ -1,4 +1,5 @@
-using Unity.VisualScripting;
+using UnityEditor;
+using UnityEditor.Animations;
 using UnityEngine;
 
 public class Enemy_Exploder : Enemy
@@ -6,12 +7,38 @@ public class Enemy_Exploder : Enemy
     #region Fields
     public float ExplodeRange;
     private bool _hasAttacked = false;
+
+    private CircleCollider2D _cCollider;
+    private Rigidbody2D _rb;
+    private Animator _anim;
     #endregion
 
     #region Properties
     #endregion
 
     #region Unity Methods
+    public override void Awake()
+    {
+        base.Awake();
+
+        _cCollider = gameObject.AddComponent<CircleCollider2D>();
+        _rb = gameObject.AddComponent<Rigidbody2D>();
+        _anim = gameObject.AddComponent<Animator>();
+
+        _cCollider.radius = 0.375f;
+        _rb.isKinematic = true;
+        _rb.useFullKinematicContacts = true;
+        _anim.runtimeAnimatorController = AssetDatabase.LoadAssetAtPath<AnimatorController>("Assets/Animations/Enemy_Exploder_Parent.controller");
+        
+        GameObject enemyExploderChild = new GameObject("Child", typeof(Animator), typeof(SpriteRenderer));
+        enemyExploderChild.GetComponent<SpriteRenderer>().sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Packages/com.unity.2d.sprite/Editor/ObjectMenuCreation/DefaultAssets/Textures/v2/Circle.png");
+        enemyExploderChild.GetComponent<Animator>().runtimeAnimatorController = AssetDatabase.LoadAssetAtPath<AnimatorController>("Assets/Animations/Enemy_Exploder.controller");   //Not sure why, but this line of code prevents localScale from having any effect on the transform, I can print out the correct localScale(0.75f, 0.75f) using Debug.Log, but without adding an extra Scale property in the Idle animation, localScale defaults to 1. This is not true for the other enemies for some reason...they all use the same idle animation(had to create a seperate one for the exploder child)
+        enemyExploderChild.transform.localScale = new Vector3(0.75f, 0.75f);
+        enemyExploderChild.transform.SetParent(transform, false);
+        
+        SetEnemyType(EnemyType.Exploder);
+    }
+
     public override void Start()
     {
         base.Start();
@@ -19,7 +46,6 @@ public class Enemy_Exploder : Enemy
         AttackTime = 5.0f;
         timer = AttackTime;
         _speed = 1.0f;
-        SetEnemyType(EnemyType.Exploder);
         Health = new Health(1, 1, 0);
     }
 

@@ -11,15 +11,26 @@ public class Enemy : Character
     public EnemyType SelfType;
     [SerializeField] protected float timer;
 
+    public Action<EnemyType> EnemyDied;
+
     #endregion
 
     #region Properties
     #endregion
 
     #region Unity Methods
+    public override void Awake()
+    {
+        base.Awake();
+    }
+
+
     public override void Start()
     {
         base.Start();
+
+        EnemyDied += GameManager.Instance.OnEnemyDeath;
+
         GameObject playerObj = GameObject.FindWithTag("Player");
         if (playerObj != null) 
         {
@@ -97,7 +108,8 @@ public class Enemy : Character
             PickupSpawner.Instance.SpawnPU(UnityEngine.Random.Range(0.0f, 2.0f), whoDied.transform.position);
             GameManager.Instance.Enemies.Remove(whoDied);
             GameManager.Instance.IncreaseScore();
-            Destroy(whoDied, delay); 
+            Destroy(whoDied, delay);
+            EnemyDied?.Invoke(whoDied.GetComponent<Enemy>().SelfType);      //What? Shouldn't this not be called because the object just got destroyed?
         }
     }
 
