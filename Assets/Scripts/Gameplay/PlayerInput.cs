@@ -3,7 +3,7 @@ using UnityEngine;
 public class PlayerInput : MonoBehaviour
 {
     #region Fields
-    [SerializeField]private Player _player;
+    [SerializeField] private Player _player;
     private float _horizontal, _vertical;
     private Vector2 _lookTarget;
     #endregion
@@ -20,7 +20,7 @@ public class PlayerInput : MonoBehaviour
     
     private void Update()
     {
-        if ( _player == null ) return;
+        if ( _player == null || !_player.gameObject.activeSelf) return;
         _horizontal = Input.GetAxis("Horizontal");
         _vertical = Input.GetAxis("Vertical");
 
@@ -49,7 +49,7 @@ public class PlayerInput : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if ( _player != null )
+        if ( _player != null && _player.gameObject.activeSelf)
         {
             _player.Move(new Vector2(_horizontal, _vertical), _lookTarget);
         }

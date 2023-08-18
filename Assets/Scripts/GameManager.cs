@@ -3,23 +3,38 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
 using System;
+using UnityEngine.UI;
+using UnityEditor;
 
 public class GameManager : MonoBehaviour
 {
     #region Fields
-    private int _seconds;
+    private static GameManager _instance;
+
+
     public UnityEvent OnScoreUpdated;
 
-    private static GameManager _instance;
-    public CurrentStage currentStage;
+    private int _seconds;
+    private int _score;
+    private int _highScore;
+    private int _stageCounter = 0;
+    [SerializeField] private int _enemiesToSpawn = 4;
+
+    [SerializeField] private float _timer;
+    [SerializeField] private float _spawnTime = 10.0f;
     private float _elapsedTime = 0.0f;
     private float _fadeDuration = 3.0f;
+
     private bool _wasStageClear = true;
     private bool _stageClearedBeforeTimer = false;
-    private int _stageCounter = 0;
-    private int _enemiesToSpawn = 4;
+    private bool _nukeUsed = false;
 
     private Color _ogC;
+    private Camera _cam;
+    private Player _player;
+    private GameOverController _gameOverController;
+
+    public Action RestartedGame;
 
     public enum CurrentStage
     {
@@ -27,22 +42,14 @@ public class GameManager : MonoBehaviour
         Stopped,
         Paused
     }
+    public CurrentStage currentStage;
 
     private List<GameObject> _enemies = new List<GameObject>();
     private List<GameObject> _pickups = new List<GameObject>();
-
-    private int _score;
-    private int _highScore;
-
-    [SerializeField] private float _timer;
-    [SerializeField] private float _spawnTime = 10.0f;
-
-    private Camera _cam;
-    private Player _player;
-
     #endregion
 
     #region Properties
+    public static GameManager Instance { get { return _instance; } }
     public List<GameObject> Enemies
     {
         get { return _enemies; }
@@ -56,7 +63,6 @@ public class GameManager : MonoBehaviour
     public string Timer { get { return (Mathf.Round((float)_seconds / 60.0f) + "minutes and " + _seconds % 60 + " seconds"); } }
     public int Score { get { return _score; } }
     public int HighScore { get { return _highScore; } }
-    public static GameManager Instance { get { return _instance; } }
     #endregion
 
     #region Unity Methods
@@ -67,13 +73,17 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        OnScoreUpdated.AddListener(UIManager.Instance.UpdateScore);
-
         _cam = Camera.main;
         _ogC = _cam.backgroundColor;
         _player = Player.Instance.GetComponent<Player>();
+        _gameOverController = UIManager.Instance.transform.Find("GameOver").GetComponent<GameOverController>();
+
+        OnScoreUpdated.AddListener(UIManager.Instance.UpdateScore);
+        _player.PlayerNuke += FlashScreen;
+        _player.PlayerDie += OnPlayerDeath;
+
         //currentStage = CurrentStage.Paused;   Not needed at this stage, implement later
-        
+
 
         SpawnEnemy(EnemyType.Melee, new Vector2(8.5f, -5.5f));
         SpawnEnemy(EnemyType.Exploder, new Vector2(8.5f, 5.5f));
@@ -87,11 +97,13 @@ public class GameManager : MonoBehaviour
     
     void Update()
     {
+        if (!_player.gameObject.activeSelf) { return; }
         _timer += Time.deltaTime;
 
         if (_timer > _spawnTime)
         {
             _stageCounter++;
+            _nukeUsed = false;
             if (_enemies.Count > 0) 
             {
                 _wasStageClear = false;
@@ -110,7 +122,10 @@ public class GameManager : MonoBehaviour
                 }
                 else
                 {
-                    _spawnTime -= 0.5f;             //80% chance to decrease spawn timer
+                    if (_spawnTime > 2.0f)          //80% chance to decrease spawn timer
+                    {
+                        _spawnTime -= 0.5f;
+                    }
                 }
                 _stageClearedBeforeTimer = false;
             }
@@ -124,11 +139,63 @@ public class GameManager : MonoBehaviour
     #endregion
 
     #region Public Methods
+    public void RestartGame()
+    {
+        _stageCounter = 0;
+        _score = 0;
+        _spawnTime = 10.0f;
+        _enemiesToSpawn = 4;
+        _timer = 0;
+        _wasStageClear = true;
+        _stageClearedBeforeTimer = false;
+        _nukeUsed = false;
+        LoadScore();
+
+        int ecount = _enemies.Count;
+        for (int i = 0; i < ecount; i++)
+        {
+            GameObject e = _enemies[0];
+            Destroy(e);
+            _enemies.RemoveAt(0);
+        }
+
+        int pcount = _pickups.Count;
+        for (int i = 0; i < pcount; i++)
+        {
+            GameObject p = _pickups[0];
+            Destroy(p);
+            _pickups.RemoveAt(0);
+        }
+
+        SpawnEnemy(EnemyType.Melee, new Vector2(8.5f, -5.5f));
+        SpawnEnemy(EnemyType.Exploder, new Vector2(8.5f, 5.5f));
+        SpawnEnemy(EnemyType.Shooter, new Vector2(-8.5f, 5.5f));
+        SpawnEnemy(EnemyType.MachineGun, new Vector2(-8.5f, -5.5f));
+        RestartedGame?.Invoke();
+    }
+
+    public void OnPlayerDeath()
+    {
+        SaveScore();
+        _gameOverController.gameObject.SetActive(true);
+        if (_score > PlayerPrefs.GetInt("HIGH_SCORE"))
+        {
+            _gameOverController.CongratulatePlayer();
+        }
+    }
+
     public void OnEnemyDeath(EnemyType enemyType)
     { 
         if (_enemies.Count == 0 && _spawnTime - _timer > 0.5 && _wasStageClear)
         {
-            _stageClearedBeforeTimer = true;
+            if (_spawnTime - _timer > 2.0f)
+            {
+                _timer = _spawnTime - 2.0f;
+            }
+            if (!_nukeUsed)
+            {
+                _stageClearedBeforeTimer = true;
+            }
         }
     }
 
@@ -143,9 +210,16 @@ public class GameManager : MonoBehaviour
         OnScoreUpdated?.Invoke();
     }
 
+    public void ClearScore()
+    {
+        _highScore = 0;
+        SaveScore();
+        OnScoreUpdated?.Invoke();
+    }
+
     public void IncreaseScore()
     {
-        if (_player == null) return;
+        if (_player == null || !_player.gameObject.activeSelf) return;
         _score++;
         if (_score > _highScore)
         {
@@ -156,6 +230,7 @@ public class GameManager : MonoBehaviour
 
     public void FlashScreen()
     {
+        _nukeUsed = true;
         if (_elapsedTime == 0.0f)
         {
             StartCoroutine(Fade());

@@ -19,11 +19,18 @@ public class AudioManager : MonoBehaviour
     private void Awake()
     {
         _audio = GetComponent<AudioSource>();
-    }
+        /*_playerShoot = ;
+        _enemyShoot = ;
+        _enemyExplode = ;
+        _nuke = ;
+        _enemyDie = ;
+        _playerDie = ;*/
+}
 
     void Start()
     {
-        
+        Player.Instance.PlayerShoot += PlayPlayerShootSound;
+        Player.Instance.PlayerNuke += PlayNukeSound;
     }
 
     
@@ -37,5 +44,14 @@ public class AudioManager : MonoBehaviour
     #endregion
 
     #region Private Methods
+    private void PlayPlayerShootSound()
+    {
+        //_audio.PlayOneShot(_playerShoot);
+    }
+
+    private void PlayNukeSound()
+    {
+        //_audio.PlayOneShot(_nuke);
+    }
     #endregion
 }

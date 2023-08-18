@@ -27,7 +27,6 @@ public class Enemy_Shooter : Enemy
         };
 
         _rb.isKinematic = true;
-        _rb.useFullKinematicContacts = true;
         
         GameObject enemyShooterChild = new GameObject("Child", typeof(Animator), typeof(SpriteRenderer));
         enemyShooterChild.GetComponent<SpriteRenderer>().sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Packages/com.unity.2d.sprite/Editor/ObjectMenuCreation/DefaultAssets/Textures/v2/IsometricDiamond.png");
@@ -51,7 +50,7 @@ public class Enemy_Shooter : Enemy
     public override void Update()
     {
         base.Update();  //Basically just calls base.Move()
-        if (playerTransform != null)
+        if (playerTransform != null && playerTransform.gameObject.activeSelf)
         {
             if (Vector2.Distance(transform.position, playerTransform.position) <= AttackRange)
             {

@@ -20,7 +20,8 @@ public class Enemy_Melee : Enemy
         _rb = gameObject.AddComponent<Rigidbody2D>();
         
         _rb.isKinematic = true;
-        _rb.useFullKinematicContacts = true;
+
+        _bCollider.size = new Vector2(0.75f, 0.75f);
 
         GameObject enemyMeleeChild = new GameObject("Child", typeof(Animator), typeof(SpriteRenderer));
         enemyMeleeChild.GetComponent<SpriteRenderer>().sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Packages/com.unity.2d.sprite/Editor/ObjectMenuCreation/DefaultAssets/Textures/v2/Square.png");
@@ -44,7 +45,7 @@ public class Enemy_Melee : Enemy
     public override void Update()
     {
         base.Update();  //Basically just calls base.Move()
-        if (playerTransform != null)
+        if (playerTransform != null && playerTransform.gameObject.activeSelf)
         {
             if (Vector2.Distance(transform.position, playerTransform.position) <= AttackRange)
             {

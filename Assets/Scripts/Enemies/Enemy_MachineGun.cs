@@ -21,7 +21,8 @@ public class Enemy_MachineGun : Enemy
         _rb = gameObject.AddComponent<Rigidbody2D>();
 
         _rb.isKinematic = true;
-        _rb.useFullKinematicContacts = true;
+
+        _bCollider.size = new Vector2(1.0f, 0.5f);
 
         GameObject enemyMachineGunChild = new GameObject("Child", typeof(Animator), typeof(SpriteRenderer));
         enemyMachineGunChild.GetComponent<SpriteRenderer>().sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Packages/com.unity.2d.sprite/Editor/ObjectMenuCreation/DefaultAssets/Textures/v2/Square.png");
@@ -44,7 +45,7 @@ public class Enemy_MachineGun : Enemy
     public override void Update()
     {
         base.Update();  //Basically just calls base.Move()
-        if (playerTransform != null)
+        if (playerTransform != null && playerTransform.gameObject.activeSelf)
         {
             if (Vector2.Distance(transform.position, playerTransform.position) <= AttackRange)
             {

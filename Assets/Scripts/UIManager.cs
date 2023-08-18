@@ -31,7 +31,9 @@ public class UIManager : MonoBehaviour
     void Start()
     {
         _player = Player.Instance;
+        GameManager.Instance.RestartedGame += ResetUI;
         _player.Health.OnHealthUpdate += UpdateHealth;
+        _player.PlayerNuke += UpdateNukeCount;
         _gunTimer = _player.transform.GetChild(0).Find("GunTimer").GetComponent<Image>();
 
 
@@ -51,13 +53,15 @@ public class UIManager : MonoBehaviour
 
     private void Update()
     {
-        if ( Player.Instance.AutoShootPUTimer < Player.Instance.AutoShootLength)
+        if (_player == null || !_player.gameObject.activeSelf) return;
+
+        if (_player.AutoShootPUTimer < _player.AutoShootLength)
         {
-            ShowGunTime( 1 - (Player.Instance.AutoShootPUTimer / Player.Instance.AutoShootLength));
+            ShowGunTime( 1 - (_player.AutoShootPUTimer / _player.AutoShootLength));
         }
         else
         {
-            _gunTimer.fillAmount = 0;
+            _gunTimer.fillAmount = 0.0f;
         }
 
 
@@ -109,11 +113,17 @@ public class UIManager : MonoBehaviour
     public void UpdateScore() 
     {
         _scoreText.SetText($"Score: {GameManager.Instance.Score}");
-        _highScoreText.SetText("High Score: " + GameManager.Instance.HighScore.ToString());
+        _highScoreText.SetText($"High Score: { GameManager.Instance.HighScore}");
     }
     #endregion
 
     #region Private Methods
+    private void ResetUI()
+    {
+        UpdateHealth((int)_player.Health.GetHealth());
+        UpdateScore();
+    }
+
     private void ShowGunTime(float timeLeft)
     {
         _gunTimer.fillAmount = timeLeft;

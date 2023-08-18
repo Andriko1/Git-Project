@@ -22,6 +22,9 @@ public class Player : Character
     public float AutoShootInterval = 0.2f;
     public float AutoShootTimer;
 
+    public Action PlayerShoot;
+    public Action PlayerNuke;
+    public Action PlayerDie;
 
     #endregion
 
@@ -48,6 +51,12 @@ public class Player : Character
         _cam = Camera.main;
         AutoShootPUTimer = AutoShootLength;
         AutoShootTimer = AutoShootInterval;
+    }
+
+    public override void Start()
+    {
+        base.Start();
+        GameManager.Instance.RestartedGame += OnRestartGame;
     }
 
     public override void Update()
@@ -98,6 +107,8 @@ public class Player : Character
         bullet.transform.position = transform.Find("Gun").position;
         bullet.transform.localScale = new Vector3(0.25f, 0.25f, 0.25f);
         bullet.GetComponent<Bullet>().IsEnemyBullet = false;
+
+        PlayerShoot?.Invoke();
     }
 
     public void AutoShoot(Vector3 direction, float speed)
@@ -117,8 +128,7 @@ public class Player : Character
         if (NukeCount > 0)
         {
             NukeCount--;
-            GameManager.Instance.FlashScreen();
-            UIManager.Instance.UpdateNukeCount();
+            PlayerNuke?.Invoke();
         }
     }
 
@@ -129,8 +139,9 @@ public class Player : Character
 
     public override void Die(GameObject whoDied, float delay = 0.0f)
     {
-        Destroy(whoDied, delay);
-        GameManager.Instance.SaveScore();
+        PlayerDie?.Invoke();
+        //Destroy(whoDied, delay); Instead of destroying, disable the player so you can enable it later
+        whoDied.SetActive(false);
     }
 
     public void PickedUp(GameObject pickup)
@@ -155,6 +166,11 @@ public class Player : Character
     #endregion
 
     #region Private Methods
-
+    private void OnRestartGame()
+    {
+        gameObject.SetActive(true);
+        Health.SetHealth(100);
+        transform.position = Vector2.zero;
+    }
     #endregion
 }

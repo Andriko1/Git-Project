@@ -44,7 +44,7 @@ public class Enemy : Character
         base.Update();
         //transform.GetChild(0).transform.localPosition = new Vector3();
         //transform.GetChild(0).transform.localRotation = new Quaternion();
-        if (playerTransform != null)
+        if (playerTransform != null && playerTransform.gameObject.activeSelf)
         {
             Move(playerTransform.position, AttackRange);
         }
@@ -109,7 +109,7 @@ public class Enemy : Character
             GameManager.Instance.Enemies.Remove(whoDied);
             GameManager.Instance.IncreaseScore();
             Destroy(whoDied, delay);
-            EnemyDied?.Invoke(whoDied.GetComponent<Enemy>().SelfType);      //What? Shouldn't this not be called because the object just got destroyed?
+            EnemyDied?.Invoke(whoDied.GetComponent<Enemy>().SelfType);      //What? Shouldn't this not be called because the object just got destroyed? Idk not complaining
         }
     }
 

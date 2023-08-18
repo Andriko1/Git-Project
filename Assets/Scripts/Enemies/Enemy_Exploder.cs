@@ -27,7 +27,6 @@ public class Enemy_Exploder : Enemy
 
         _cCollider.radius = 0.375f;
         _rb.isKinematic = true;
-        _rb.useFullKinematicContacts = true;
         _anim.runtimeAnimatorController = AssetDatabase.LoadAssetAtPath<AnimatorController>("Assets/Animations/Enemy_Exploder_Parent.controller");
         
         GameObject enemyExploderChild = new GameObject("Child", typeof(Animator), typeof(SpriteRenderer));
@@ -58,7 +57,7 @@ public class Enemy_Exploder : Enemy
         //transform.GetChild(0).transform.localPosition = new Vector3();
         //transform.GetChild(0).transform.localRotation = new Quaternion();
         
-        if (playerTransform != null)
+        if (playerTransform != null && playerTransform.gameObject.activeSelf)
         {
             Move(playerTransform.position, AttackRange);
             if (Vector2.Distance(transform.position, playerTransform.position) <= AttackRange && _hasAttacked == false)
