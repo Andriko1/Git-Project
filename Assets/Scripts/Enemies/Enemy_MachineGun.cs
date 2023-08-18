@@ -1,17 +1,35 @@
+using UnityEditor;
+using UnityEditor.Animations;
 using UnityEngine;
-using UnityEngine.Animations;
-using static UnityEngine.GraphicsBuffer;
 
 public class Enemy_MachineGun : Enemy
 {
     #region Fields
-
+    private BoxCollider2D _bCollider;
+    private Rigidbody2D _rb;
     #endregion
 
     #region Properties
     #endregion
 
     #region Unity Methods
+    public override void Awake()
+    {
+        base.Awake();
+
+        _bCollider = gameObject.AddComponent<BoxCollider2D>();
+        _rb = gameObject.AddComponent<Rigidbody2D>();
+
+        _rb.isKinematic = true;
+        _rb.useFullKinematicContacts = true;
+
+        GameObject enemyMachineGunChild = new GameObject("Child", typeof(Animator), typeof(SpriteRenderer));
+        enemyMachineGunChild.GetComponent<SpriteRenderer>().sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Packages/com.unity.2d.sprite/Editor/ObjectMenuCreation/DefaultAssets/Textures/v2/Square.png");
+        enemyMachineGunChild.GetComponent<Animator>().runtimeAnimatorController = AssetDatabase.LoadAssetAtPath<AnimatorController>("Assets/Animations/Enemy_MachineGun.controller");
+        enemyMachineGunChild.transform.localScale = new Vector3(1.0f, 0.5f);
+        enemyMachineGunChild.transform.SetParent(transform, false);
+    }
+
     public override void Start()
     {
         base.Start();
