@@ -33,12 +33,12 @@ public class PlayerInput : MonoBehaviour
         _lookTarget = Input.mousePosition;
         if ( Input.GetMouseButtonDown(0) )
         {
-            _player.Shoot(transform.right, 4.0f);
+            _player.Shoot(transform.right, 8.0f);
         }
 
         if ( Input.GetMouseButton(0) )
         {
-            _player.AutoShoot(transform.right, 4.0f);
+            _player.AutoShoot(transform.right, 8.0f);
         }
 
         if ( Input.GetMouseButtonDown(1) )

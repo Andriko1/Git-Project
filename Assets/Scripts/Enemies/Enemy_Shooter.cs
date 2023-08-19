@@ -1,5 +1,3 @@
-using UnityEditor;
-using UnityEditor.Animations;
 using UnityEngine;
 
 public class Enemy_Shooter : Enemy
@@ -29,8 +27,8 @@ public class Enemy_Shooter : Enemy
         _rb.isKinematic = true;
         
         GameObject enemyShooterChild = new GameObject("Child", typeof(Animator), typeof(SpriteRenderer));
-        enemyShooterChild.GetComponent<SpriteRenderer>().sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Packages/com.unity.2d.sprite/Editor/ObjectMenuCreation/DefaultAssets/Textures/v2/IsometricDiamond.png");
-        enemyShooterChild.GetComponent<Animator>().runtimeAnimatorController = AssetDatabase.LoadAssetAtPath<AnimatorController>("Assets/Animations/Enemy_Shooter.controller");
+        enemyShooterChild.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Textures/IsometricDiamond");
+        enemyShooterChild.GetComponent<Animator>().runtimeAnimatorController = Resources.Load<RuntimeAnimatorController>("AnimatorControllers/Enemy_Shooter");
         enemyShooterChild.transform.localScale = new Vector3(1.25f, 0.75f);
         enemyShooterChild.transform.SetParent(transform, false);
 

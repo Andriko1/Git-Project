@@ -1,5 +1,4 @@
 using System;
-using UnityEditor;
 using UnityEngine;
 
 public class Enemy : Character
@@ -12,7 +11,6 @@ public class Enemy : Character
     [SerializeField] protected float timer;
 
     public Action<EnemyType> EnemyDied;
-
     #endregion
 
     #region Properties
@@ -42,8 +40,6 @@ public class Enemy : Character
     public override void Update()
     {
         base.Update();
-        //transform.GetChild(0).transform.localPosition = new Vector3();
-        //transform.GetChild(0).transform.localRotation = new Quaternion();
         if (playerTransform != null && playerTransform.gameObject.activeSelf)
         {
             Move(playerTransform.position, AttackRange);
@@ -90,8 +86,9 @@ public class Enemy : Character
 
     public override void Shoot(Vector3 direction, float speed)
     {
+        AudioManager.Instance.PlaySound(AudioManager.Sounds.EnemyShoot);
         GameObject bullet = new GameObject("Bullet", typeof(SpriteRenderer), typeof(Rigidbody2D), typeof(CircleCollider2D), typeof(Bullet));
-        bullet.GetComponent<SpriteRenderer>().sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Packages/com.unity.2d.sprite/Editor/ObjectMenuCreation/DefaultAssets/Textures/v2/Circle.png");
+        bullet.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Textures/Circle");
         bullet.GetComponent<Rigidbody2D>().isKinematic = true;
         bullet.GetComponent<Rigidbody2D>().useFullKinematicContacts = true;
         bullet.GetComponent<Rigidbody2D>().gravityScale = 0.0f;
@@ -103,8 +100,10 @@ public class Enemy : Character
 
     public override void Die(GameObject whoDied, float delay = 0.0f)
     {
+        base.Die(whoDied, delay);
         if (whoDied != null) 
         {
+            AudioManager.Instance.PlaySound(AudioManager.Sounds.EnemyDie);
             PickupSpawner.Instance.SpawnPU(UnityEngine.Random.Range(0.0f, 2.0f), whoDied.transform.position);
             GameManager.Instance.Enemies.Remove(whoDied);
             GameManager.Instance.IncreaseScore();
@@ -125,5 +124,7 @@ public class Enemy : Character
     #endregion
 
     #region Private Methods
+    
+
     #endregion
 }

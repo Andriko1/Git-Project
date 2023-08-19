@@ -53,6 +53,7 @@ public class GameOverController : MonoBehaviour
     {
         if (ScoreResultText != null)            //For some reason when the TMP_Text component was referenced in Start() (in a previous version of this code) this would be null??? Which is weird because the gameObject was set to active before calling this function
         {
+            AudioManager.Instance.PlaySound(AudioManager.Sounds.NewHighScore);
             ScoreResultText.SetText("NEW HIGHSCORE!!!");
         }
     }
@@ -61,6 +62,7 @@ public class GameOverController : MonoBehaviour
     #region Private Methods
     private void OnRetryButtonClicked()
     {
+        ScoreResultText.SetText("");
         gameObject.SetActive(false);
         GameManager.Instance.RestartGame();
     }

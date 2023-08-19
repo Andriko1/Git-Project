@@ -3,8 +3,6 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
 using System;
-using UnityEngine.UI;
-using UnityEditor;
 
 public class GameManager : MonoBehaviour
 {
@@ -176,12 +174,16 @@ public class GameManager : MonoBehaviour
 
     public void OnPlayerDeath()
     {
-        SaveScore();
         _gameOverController.gameObject.SetActive(true);
         if (_score > PlayerPrefs.GetInt("HIGH_SCORE"))
         {
             _gameOverController.CongratulatePlayer();
         }
+        else
+        {
+            AudioManager.Instance.PlaySound(AudioManager.Sounds.PlayerDie);
+        }
+        SaveScore();
     }
 
     public void OnEnemyDeath(EnemyType enemyType)

@@ -122,6 +122,7 @@ public class UIManager : MonoBehaviour
     {
         UpdateHealth((int)_player.Health.GetHealth());
         UpdateScore();
+        UpdateNukeCount();
     }
 
     private void ShowGunTime(float timeLeft)

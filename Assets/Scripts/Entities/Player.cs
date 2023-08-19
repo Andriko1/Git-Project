@@ -1,6 +1,4 @@
 using System;
-using Unity.VisualScripting;
-using UnityEditor;
 using UnityEngine;
 
 public class Player : Character
@@ -98,7 +96,7 @@ public class Player : Character
     public override void Shoot(Vector3 direction, float speed)
     {
         GameObject bullet = new GameObject("Bullet", typeof(SpriteRenderer), typeof(Rigidbody2D), typeof(CircleCollider2D), typeof(Bullet));
-        bullet.GetComponent<SpriteRenderer>().sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Packages/com.unity.2d.sprite/Editor/ObjectMenuCreation/DefaultAssets/Textures/v2/Circle.png");
+        bullet.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Textures/Circle");
         bullet.GetComponent<Rigidbody2D>().isKinematic = true;
         bullet.GetComponent<Rigidbody2D>().useFullKinematicContacts = true;
         bullet.GetComponent<Rigidbody2D>().sleepMode = RigidbodySleepMode2D.NeverSleep;
@@ -107,7 +105,7 @@ public class Player : Character
         bullet.transform.position = transform.Find("Gun").position;
         bullet.transform.localScale = new Vector3(0.25f, 0.25f, 0.25f);
         bullet.GetComponent<Bullet>().IsEnemyBullet = false;
-
+        AudioManager.Instance.PlaySound(AudioManager.Sounds.PlayerShoot);
         PlayerShoot?.Invoke();
     }
 
@@ -127,6 +125,7 @@ public class Player : Character
     {
         if (NukeCount > 0)
         {
+            AudioManager.Instance.PlaySound(AudioManager.Sounds.Nuke);
             NukeCount--;
             PlayerNuke?.Invoke();
         }
@@ -139,6 +138,7 @@ public class Player : Character
 
     public override void Die(GameObject whoDied, float delay = 0.0f)
     {
+        base.Die(whoDied, delay);
         PlayerDie?.Invoke();
         //Destroy(whoDied, delay); Instead of destroying, disable the player so you can enable it later
         whoDied.SetActive(false);
@@ -151,14 +151,17 @@ public class Player : Character
             case "NukePU":
                 if (NukeCount < 3)
                 {
+                    AudioManager.Instance.PlaySound(AudioManager.Sounds.NukePU);
                     NukeCount++;
                     UIManager.Instance.UpdateNukeCount();
                 }
                 break;
             case "HealthPU":
+                AudioManager.Instance.PlaySound(AudioManager.Sounds.HealthPU);
                 Health.AddHealth(25.0f);
                 break;
             case "GunPU":
+                AudioManager.Instance.PlaySound(AudioManager.Sounds.GunPU);
                 AutoShootPUTimer = 0;
                 break;
         }
@@ -171,6 +174,7 @@ public class Player : Character
         gameObject.SetActive(true);
         Health.SetHealth(100);
         transform.position = Vector2.zero;
+        NukeCount = 0;
     }
     #endregion
 }

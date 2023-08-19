@@ -1,5 +1,3 @@
-using UnityEditor;
-using UnityEditor.Animations;
 using UnityEngine;
 
 public class Enemy_Exploder : Enemy
@@ -27,11 +25,11 @@ public class Enemy_Exploder : Enemy
 
         _cCollider.radius = 0.375f;
         _rb.isKinematic = true;
-        _anim.runtimeAnimatorController = AssetDatabase.LoadAssetAtPath<AnimatorController>("Assets/Animations/Enemy_Exploder_Parent.controller");
+        _anim.runtimeAnimatorController = Resources.Load<RuntimeAnimatorController>("AnimatorControllers/Enemy_Exploder_Parent");
         
         GameObject enemyExploderChild = new GameObject("Child", typeof(Animator), typeof(SpriteRenderer));
-        enemyExploderChild.GetComponent<SpriteRenderer>().sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Packages/com.unity.2d.sprite/Editor/ObjectMenuCreation/DefaultAssets/Textures/v2/Circle.png");
-        enemyExploderChild.GetComponent<Animator>().runtimeAnimatorController = AssetDatabase.LoadAssetAtPath<AnimatorController>("Assets/Animations/Enemy_Exploder.controller");   //Not sure why, but this line of code prevents localScale from having any effect on the transform, I can print out the correct localScale(0.75f, 0.75f) using Debug.Log, but without adding an extra Scale property in the Idle animation, localScale defaults to 1. This is not true for the other enemies for some reason...they all use the same idle animation(had to create a seperate one for the exploder child)
+        enemyExploderChild.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Textures/Circle");
+        enemyExploderChild.GetComponent<Animator>().runtimeAnimatorController = Resources.Load<RuntimeAnimatorController>("AnimatorControllers/Enemy_Exploder");   //Not sure why, but this line of code prevents localScale from having any effect on the transform, I can print out the correct localScale(0.75f, 0.75f) using Debug.Log, but without adding an extra Scale property in the Idle animation, localScale defaults to 1. This is not true for the other enemies for some reason...they all use the same idle animation(had to create a seperate one for the exploder child)
         enemyExploderChild.transform.localScale = new Vector3(0.75f, 0.75f);
         enemyExploderChild.transform.SetParent(transform, false);
         
@@ -80,6 +78,7 @@ public class Enemy_Exploder : Enemy
         if (timer > interval)
         {
             base.Attack(interval);
+            AudioManager.Instance.PlaySound(AudioManager.Sounds.EnemyExplode);
             timer = 0;
             Die(this.gameObject, 1.25f);    //The attack happens as it dies
         }

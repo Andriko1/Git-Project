@@ -1,4 +1,3 @@
-using System.Threading;
 using UnityEngine;
 
 public abstract class Character : MonoBehaviour, IDamageable
@@ -11,6 +10,7 @@ public abstract class Character : MonoBehaviour, IDamageable
     private GameManager _gameManager;
     public Health Health;
     public Weapon Weapon;
+    private Material[] _explosionsMats;
     #endregion
 
     #region Properties
@@ -19,7 +19,11 @@ public abstract class Character : MonoBehaviour, IDamageable
     #region Unity Methods
     public virtual void Awake()
     {
-
+        _explosionsMats = new Material[3] {
+            Resources.Load<Material>("Materials/Impact01"),
+            Resources.Load<Material>("Materials/Impact02"),
+            Resources.Load<Material>("Materials/Impact03")
+        };
     }
 
     public virtual void Start()
@@ -67,7 +71,13 @@ public abstract class Character : MonoBehaviour, IDamageable
 
     public abstract void Shoot(Vector3 direction, float speed);
 
-    public abstract void Die(GameObject whoDied, float delay = 0.0f);
+    public virtual void Die(GameObject whoDied, float delay = 0.0f)
+    {
+        if (whoDied != null)
+        {
+            DeathParticle();
+        }
+    }
 
     public abstract void Attack(float interval);
     #endregion
@@ -81,5 +91,38 @@ public abstract class Character : MonoBehaviour, IDamageable
         }
     }
     #region Private Methods
+    private void DeathParticle()
+    {
+        GameObject splode = new GameObject("ExplosionParticleEffect", typeof(ParticleSystem));
+        splode.transform.position = transform.position;
+        ParticleSystem ps = splode.GetComponent<ParticleSystem>();
+        ps.Stop();
+        ParticleSystem.MainModule psm = ps.main;
+        psm.duration = 1.5f;
+        psm.loop = false;
+        psm.startLifetime = 1;
+        psm.startSpeed = 0;
+        psm.startSize = 5;
+        psm.emitterVelocityMode = ParticleSystemEmitterVelocityMode.Transform;
+        psm.stopAction = ParticleSystemStopAction.Destroy;
+        ParticleSystem.MinMaxCurve psmmc = new ParticleSystem.MinMaxCurve(0.0f, Mathf.Deg2Rad * 360.0f);
+        psmmc.mode = ParticleSystemCurveMode.TwoConstants;
+        psm.startRotation = psmmc;
+        ParticleSystem.EmissionModule pse = ps.emission;
+        pse.rateOverTime = 0.0f;
+        pse.SetBursts(new ParticleSystem.Burst[] { new ParticleSystem.Burst(0, 1) });
+        ParticleSystem.ShapeModule pss = ps.shape;
+        pss.shapeType = ParticleSystemShapeType.Sphere;
+        pss.radius = 0.0001f;
+        pss.radiusThickness = 0.0f;
+        ParticleSystem.TextureSheetAnimationModule pst = ps.textureSheetAnimation;
+        pst.enabled = true;             //Wth? Why is this the only module that needs to be enabled?
+        pst.numTilesX = 8;
+        pst.numTilesY = 8;
+        ParticleSystemRenderer psr = ps.GetComponent<ParticleSystemRenderer>();
+        psr.material = _explosionsMats[Random.Range(0, 3)];
+        psr.maxParticleSize = 1.0f;
+        ps.Play();
+    }
     #endregion
 }

@@ -1,5 +1,3 @@
-using UnityEditor;
-using UnityEditor.Animations;
 using UnityEngine;
 
 public class Enemy_Melee : Enemy
@@ -24,8 +22,8 @@ public class Enemy_Melee : Enemy
         _bCollider.size = new Vector2(0.75f, 0.75f);
 
         GameObject enemyMeleeChild = new GameObject("Child", typeof(Animator), typeof(SpriteRenderer));
-        enemyMeleeChild.GetComponent<SpriteRenderer>().sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Packages/com.unity.2d.sprite/Editor/ObjectMenuCreation/DefaultAssets/Textures/v2/Square.png");
-        enemyMeleeChild.GetComponent<Animator>().runtimeAnimatorController = AssetDatabase.LoadAssetAtPath<AnimatorController>("Assets/Animations/Enemy_Melee.controller");
+        enemyMeleeChild.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Textures/Square");
+        enemyMeleeChild.GetComponent<Animator>().runtimeAnimatorController = Resources.Load<RuntimeAnimatorController>("AnimatorControllers/Enemy_Melee");
         enemyMeleeChild.transform.localScale = new Vector3(0.75f, 0.75f);
         enemyMeleeChild.transform.SetParent(transform, false);
 
@@ -62,6 +60,7 @@ public class Enemy_Melee : Enemy
         {
             base.Attack(interval);
             timer = 0;
+            AudioManager.Instance.PlaySound(AudioManager.Sounds.EnemyMelee);
             GetComponentInChildren<Animator>().SetTrigger("Attack");
             playerTransform.GetComponent<IDamageable>().TakeDamage(10);
         }
